@@ -87,8 +87,8 @@
                 return;
             }
 
-            // Send transaction payload to backend
-            fetch('http://localhost:3000/api/transaction/checkout', {
+            // Send transaction payload to backend using relative path for cloud deployment
+            fetch('/api/transaction/checkout', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
