@@ -16,11 +16,13 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Configure your database connection
+// Configure your database connection using cloud environment variables
 const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    database: 'grocery_store'
+    host: process.env.MYSQLHOST || 'localhost',
+    user: process.env.MYSQLUSER || 'root',
+    password: process.env.MYSQLPASSWORD || '',
+    database: process.env.MYSQLDATABASE || 'grocery_store',
+    port: process.env.MYSQLPORT || 3306
 });
 
 db.connect((err) => {
@@ -151,7 +153,6 @@ app.get('/api/cart/:customer_id', (req, res) => {
     });
 });
 
-// 👉 DELETE ITEM FROM CART ROUTE ADDED HERE
 app.delete('/api/cart/delete/:cart_id', (req, res) => {
     const cartId = req.params.cart_id;
     const query = "DELETE FROM cart WHERE cart_id = ?";
@@ -169,14 +170,12 @@ app.delete('/api/cart/delete/:cart_id', (req, res) => {
 app.post('/api/transaction/checkout', (req, res) => {
     const { customer_id, payment_method, total_amount } = req.body;
     
-    // 1. Insert into transactions table
     const insertQuery = "INSERT INTO transactions (customer_id, total_amount, payment_method) VALUES (?, ?, ?)";
     db.query(insertQuery, [customer_id, total_amount, payment_method], (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
         
         const transactionId = result.insertId;
 
-        // 2. Clear the user's cart after successful checkout
         const clearCartQuery = "DELETE FROM cart WHERE customer_id = ?";
         db.query(clearCartQuery, [customer_id], (clearErr) => {
             if (clearErr) console.error("Error clearing cart:", clearErr);
@@ -190,8 +189,8 @@ app.post('/api/transaction/checkout', (req, res) => {
     });
 });
 
-// Start server once
-const PORT = 3000;
+// Start server with dynamic cloud port assignment
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
