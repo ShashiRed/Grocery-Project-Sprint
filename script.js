@@ -1,5 +1,5 @@
-// Base API URL for your backend server
-const API_URL = 'http://localhost:3000/api';
+// Base API URL for your backend server (relative path works automatically in both local and cloud)
+const API_URL = '/api';
 
 // Function to add a product to the cart (used in index.html)
 function addToCart(productId) {
@@ -21,7 +21,7 @@ function addToCart(productId) {
 }
 
 function removeItem(cartId) {
-    fetch(`http://localhost:3000/api/cart/delete/${cartId}`, {
+    fetch(`${API_URL}/cart/delete/${cartId}`, {
         method: 'DELETE'
     })
     .then(response => response.json())
