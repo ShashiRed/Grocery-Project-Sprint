@@ -18,11 +18,11 @@ app.get('/', (req, res) => {
 
 // Configure your database connection using cloud environment variables
 const db = mysql.createConnection({
-    host: process.env.MYSQLHOST || 'localhost',
-    user: process.env.MYSQLUSER || 'root',
-    password: process.env.MYSQLPASSWORD || '',
-    database: process.env.MYSQLDATABASE || 'grocery_store',
-    port: process.env.MYSQLPORT || 3306
+    host: process.env.MYSQLHOST || process.env.MYSQL_HOST || 'localhost',
+    user: process.env.MYSQLUSER || process.env.MYSQL_USER || 'root',
+    password: process.env.MYSQLPASSWORD || process.env.MYSQL_PASSWORD || '',
+    database: process.env.MYSQLDATABASE || process.env.MYSQL_DATABASE || 'grocery_store',
+    port: process.env.MYSQLPORT || process.env.MYSQL_PORT || 3306
 });
 
 db.connect((err) => {
