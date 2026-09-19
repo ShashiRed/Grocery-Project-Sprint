@@ -16,14 +16,15 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Configure your database connection using cloud environment variables
-const db = mysql.createConnection({
-    host: process.env.MYSQLHOST || process.env.MYSQL_HOST || 'localhost',
-    user: process.env.MYSQLUSER || process.env.MYSQL_USER || 'root',
-    password: process.env.MYSQLPASSWORD || process.env.MYSQL_PASSWORD || '',
-    database: process.env.MYSQLDATABASE || process.env.MYSQL_DATABASE || 'grocery_store',
-    port: process.env.MYSQLPORT || process.env.MYSQL_PORT || 3306
+// Configure database connection using Railway's connection URL
+const db = mysql.createConnection(process.env.DATABASE_URL || {
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'grocery_store',
+    port: 3306
 });
+
 
 db.connect((err) => {
     if (err) {
