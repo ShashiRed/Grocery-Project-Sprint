@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grocery Store - Cart</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .cart-layout {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        .cart-items-left {
+            flex: 2;
+        }
+        .cart-summary-right {
+            flex: 1;
+            background: #fdfdfd;
+            border: 1px solid #e1e8ed;
+            padding: 20px;
+            border-radius: 6px;
+            height: fit-content;
+        }
+        .cart-item-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            background: white;
+        }
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Global Navigation Bar -->
+    <nav>
+        <div class="logo">Grocery Store App</div>
+        <div>
+            <a href="index.html">Products</a>
+            <a href="profile.html">My Profile</a>
+            <a href="cart.html">Cart</a>
+            <a href="transaction.html">Transaction</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Your Shopping Cart</h1>
+
+        <!-- Empty Cart State -->
+        <div id="empty-cart-message" style="display: none; text-align: center; padding: 40px;">
+            <h3>Your cart is empty</h3>
+            <p>Looks like you haven't added anything to your cart yet.</p>
+            <a href="index.html" style="color: #3498db; font-weight: bold; text-decoration: underline;">View Products</a>
+        </div>
+
+        <!-- Active Cart Layout -->
+        <div id="active-cart-container" class="cart-layout">
+            
+            <!-- Left Side: Dynamic Items from DB -->
+            <div class="cart-items-left">
+                <h3>Items in Cart</h3>
+                <div id="dynamic-cart-items">
+                    <!-- Loaded dynamically via script -->
+                </div>
+            </div>
+
+            <!-- Right Side: Dynamic Summary Box -->
+            <div class="cart-summary-right" id="summary-box">
+                <h3>Summary</h3>
+                <hr style="border: 0; border-top: 1px solid #ddd; margin: 10px 0;">
+                <p>Subtotal: ₹0</p>
+                <p>Delivery Fee: ₹30</p>
+                <h3>Total Amount: ₹30</h3>
+                <button onclick="proceedToCheckout(30)" style="width: 100%; background-color: #27ae60; margin-top: 15px;">Checkout</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Script to fetch data dynamically -->
+    <script src="script.js"></script>
+    <script>
+        window.onload = function() {
+            const customerId = 1; // Default test user
+            
+            fetch(`http://localhost:3000/api/cart/${customerId}`)
+            .then(res => res.json())
+            .then(items => {
+                const container = document.getElementById('dynamic-cart-items');
+                container.innerHTML = "";
+                
+                if (!items || items.length === 0) {
+                    document.getElementById('active-cart-container').style.display = 'none';
+                    document.getElementById('empty-cart-message').style.display = 'block';
+                    return;
+                }
+
+                let subtotal = 0;
+                items.forEach(item => {
+                    subtotal += (item.price * item.quantity);
+                    container.innerHTML += `
+                        <div class="cart-item-card">
+                            <div>
+                                <h4 style="margin: 0 0 5px 0;">${item.product_name}</h4>
+                                <p style="margin: 0; color: #666;">Price: ₹${item.price} x ${item.quantity}</p>
+                            </div>
+                            <button class="delete-btn" onclick="removeItem(${item.cart_id})">Delete</button>
+                        </div>
+                    `;
+                });
+
+                // Calculate final total including delivery fee
+                const deliveryFee = 30;
+                const totalAmount = subtotal + deliveryFee;
+
+                // Render dynamic summary panel
+                document.getElementById('summary-box').innerHTML = `
+                    <h3>Summary</h3>
+                    <hr style="border: 0; border-top: 1px solid #ddd; margin: 10px 0;">
+                    <p>Subtotal: ₹${subtotal}</p>
+                    <p>Delivery Fee: ₹${deliveryFee}</p>
+                    <h3>Total Amount: ₹${totalAmount}</h3>
+                    <button onclick="proceedToCheckout(${totalAmount})" style="width: 100%; background-color: #27ae60; margin-top: 15px;">Checkout</button>
+                `;
+            })
+            .catch(err => console.error("Error loading cart:", err));
+        };
+
+        function proceedToCheckout(totalAmount) {
+            // Save total amount so transaction.html can read it
+            localStorage.setItem('checkoutTotal', totalAmount);
+            window.location.href = 'transaction.html';
+        }
+    </script>
+</body>
+</html>

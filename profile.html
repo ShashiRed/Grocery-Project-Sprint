@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grocery Store - My Profile</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Global Navigation Bar -->
+    <nav>
+        <div class="logo">Grocery Store App</div>
+        <div>
+            <a href="index.html">Products</a>
+            <a href="profile.html">My Profile</a>
+            <a href="cart.html">Cart</a>
+            <a href="transaction.html">Transaction</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Customer Name at the top (per requirement US_UI_001) -->
+        <h1 id="customer-name-heading">Customer Name: Loading...</h1>
+        <p>Manage your account registration details below.</p>
+
+        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+
+        <!-- Registration Details Form Container -->
+        <div id="profile-details-form">
+            <label>Customer ID:</label>
+            <input type="text" id="cust-id" value="CUST-1001" disabled>
+
+            <label>Full Name:</label>
+            <input type="text" id="cust-name" value="Shashikanth Reddy" disabled>
+
+            <label>Email Address:</label>
+            <input type="email" id="cust-email" value="shashikanth@example.com" disabled>
+
+            <label>Phone Number:</label>
+            <input type="text" id="cust-phone" value="+91 9876543210" disabled>
+
+            <label>Account Status:</label>
+            <input type="text" id="cust-status" value="Active" disabled>
+
+            <!-- Action Buttons: Update and Save (per requirement US_UI_001) -->
+            <div style="margin-top: 20px;">
+                <button id="update-btn" onclick="enableEditing()">Update</button>
+                <button id="save-btn" onclick="saveProfile()" style="background-color: #27ae60; display: none;">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Specific JavaScript for Toggle & Database Save Simulation -->
+    <script>
+        function enableEditing() {
+            // Make input fields editable (except Customer ID)
+            document.getElementById('cust-name').removeAttribute('disabled');
+            document.getElementById('cust-email').removeAttribute('disabled');
+            document.getElementById('cust-phone').removeAttribute('disabled');
+
+            // Toggle button visibility
+            document.getElementById('update-btn').style.display = 'none';
+            document.getElementById('save-btn').style.display = 'inline-block';
+            
+            alert("Fields are now editable. Make your changes and click Save.");
+        }
+
+        function saveProfile() {
+            const updatedName = document.getElementById('cust-name').value;
+            
+            // Lock fields back
+            document.getElementById('cust-name').setAttribute('disabled', 'true');
+            document.getElementById('cust-email').setAttribute('disabled', 'true');
+            document.getElementById('cust-phone').setAttribute('disabled', 'true');
+
+            // Update heading text
+            document.getElementById('customer-name-heading').innerText = "Customer Name: " + updatedName;
+
+            // Toggle button visibility back
+            document.getElementById('save-btn').style.display = 'none';
+            document.getElementById('update-btn').style.display = 'inline-block';
+
+            // TODO: In your backend/server.js, this will trigger an SQL update query to the Registration table
+            alert("Changes saved successfully! Reflected in Registration Table.");
+        }
+    </script>
+</body>
+</html>

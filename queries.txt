@@ -1,0 +1,122 @@
+-- ============================================================================
+-- MASTER GROCERY STORE SETUP & QUERY SCRIPT
+-- Copy and paste this entire block into your MySQL terminal on a new device.
+-- ============================================================================
+
+-- 1. Create and Select Database
+CREATE DATABASE IF NOT EXISTS grocery_store;
+USE grocery_store;
+
+-- 2. Drop existing tables if re-running (in correct order to prevent foreign key errors)
+DROP TABLE IF EXISTS cart;
+DROP TABLE IF EXISTS transactions;
+DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS customers;
+
+-- 3. Create Base Tables Schema
+CREATE TABLE customers (
+    customer_id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_name VARCHAR(100),
+    customer_email VARCHAR(100),
+    status VARCHAR(20) DEFAULT 'Active'
+);
+
+CREATE TABLE products (
+    product_id INT AUTO_INCREMENT PRIMARY KEY,
+    product_name VARCHAR(100),
+    price DECIMAL(10, 2)
+);
+
+CREATE TABLE orders (
+    order_id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT,
+    product_id INT,
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+);
+
+CREATE TABLE transactions (
+    transaction_id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT,
+    total_amount DECIMAL(10, 2),
+    payment_method VARCHAR(50),
+    transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+);
+
+CREATE TABLE cart (
+    cart_id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT,
+    product_id INT,
+    quantity INT,
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+
+
+-- ----------------------------------------------------------------------------
+-- 4. INSERT INITIAL SEED DATA (Required for UI Products & Reports)
+-- ----------------------------------------------------------------------------
+
+-- Insert test customers
+INSERT INTO customers (customer_id, customer_name, customer_email, status) VALUES
+(1, 'Shashikanth Reddy', 'shashi@gmail.com', 'Active'),
+(2, 'Rahul Sharma', 'rahul@yahoo.com', 'Active'),
+(3, 'Priya Patel', 'priya@gmail.com', 'Active');
+
+-- Insert products matching index.html buttons
+INSERT INTO products (product_id, product_name, price) VALUES
+(1, 'Organic Apples (1kg)', 150.00),
+(2, 'Fresh Whole Milk (1L)', 65.00),
+(3, 'Premium Olive Oil (1L)', 1250.00);
+
+-- Insert baseline orders (for US_SQL_008 JOIN report)
+INSERT INTO orders (order_id, customer_id, product_id) VALUES
+(101, 1, 1),
+(102, 2, 2),
+(103, 3, 3);
+
+-- Insert sample transactions (for US_SQL_010 HAVING clause report > 5 items)
+INSERT INTO transactions (customer_id, total_amount, payment_method) VALUES
+(1, 500.00, 'COD'),
+(1, 300.00, 'UPI'),
+(1, 1250.00, 'Credit Card'),
+(1, 150.00, 'COD'),
+(1, 65.00, 'UPI'),
+(1, 200.00, 'Debit Card');
+
+
+-- ----------------------------------------------------------------------------
+-- 5. APPLICATION OPERATIONAL QUERIES (Executed dynamically via server.js)
+-- ----------------------------------------------------------------------------
+
+-- [US_Prog_004] Soft delete customer profile
+-- UPDATE customers SET status = 'Inactive' WHERE customer_id = 1;
+
+-- [US_Prog_005] Activate customer profile
+-- UPDATE customers SET status = 'Active' WHERE customer_id = 1;
+
+-- [US_Prog_006] Search customer by email domain
+-- SELECT customer_id, customer_name, customer_email FROM customers WHERE customer_email LIKE '%@gmail.com' ORDER BY customer_id ASC;
+
+-- [US_SQL_008] JOIN Operation (Customers & Orders)
+-- SELECT c.customer_id, c.customer_name, o.order_id FROM customers c JOIN orders o ON c.customer_id = o.customer_id ORDER BY c.customer_id ASC;
+
+-- [US_SQL_009] Subquery / Expensive products > 1000
+-- SELECT * FROM products WHERE price > 1000;
+
+-- [US_SQL_010] HAVING Clause Report (Frequent buyers > 5 items)
+-- SELECT c.customer_id, c.customer_name, COUNT(o.product_id) as total_products FROM customers c JOIN transactions o ON c.customer_id = o.customer_id GROUP BY c.customer_id, c.customer_name HAVING COUNT(o.product_id) > 5;
+
+-- [Cart Management] Add item to cart
+-- INSERT INTO cart (customer_id, product_id, quantity) VALUES (1, 1, 1);
+
+-- [Cart Management] Fetch cart items with product details via JOIN
+-- SELECT c.cart_id, p.product_id, p.product_name, p.price, c.quantity FROM cart c JOIN products p ON c.product_id = p.product_id WHERE c.customer_id = 1;
+
+-- [Cart Management] Delete single item from cart
+-- DELETE FROM cart WHERE cart_id = 1;
+
+-- [Checkout] Record transaction and clear cart
+-- INSERT INTO transactions (customer_id, total_amount, payment_method) VALUES (1, 215.00, 'COD');
+-- DELETE FROM cart WHERE customer_id = 1;
