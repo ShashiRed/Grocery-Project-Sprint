@@ -98,7 +98,8 @@
         window.onload = function() {
             const customerId = 1; // Default test user
             
-            fetch(`http://localhost:3000/api/cart/${customerId}`)
+            // Updated to use relative path for cloud/local compatibility
+            fetch(`/api/cart/${customerId}`)
             .then(res => res.json())
             .then(items => {
                 const container = document.getElementById('dynamic-cart-items');
