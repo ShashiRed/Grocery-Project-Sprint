@@ -17,12 +17,12 @@ app.get('/', (req, res) => {
 });
 
 // Configure database connection using Railway's connection URL
-const db = mysql.createConnection(process.env.DATABASE_URL || {
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'grocery_store',
-    port: 3306
+const db = mysql.createConnection({
+    host: process.env.MYSQLHOST,
+    user: process.env.MYSQLUSER,
+    password: process.env.MYSQLPASSWORD,
+    database: process.env.MYSQLDATABASE,
+    port: process.env.MYSQLPORT
 });
 
 
